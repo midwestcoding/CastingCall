@@ -1,15 +1,10 @@
 const KEY = 'c527e62349cb8cb7e8d047a1eb3519de';
-const firstActor = document.querySelector('.first_actor');
-const secondActor = document.querySelector('.second_actor');
-const thirdActor = document.querySelector('.third_actor');
+const actorInput = document.querySelectorAll('.actor-input');
+const createInput = document.querySelector('.create-input');
+const inputs = document.querySelector('.inputs');
 const results = document.querySelector('.results');
 
-const idkwhocares = {
-  firstActorSelected: false,
-  secondActorSelected: false,
-  thirdActorSelected: false,
-  movieArr: [],
-};
+const idk = [];
 
 const getActorData = async actorID => {
   const response = await fetch(
@@ -32,67 +27,82 @@ function renderMatchedMovies(matchedMovies) {
 
 async function addMovies(selectedActor) {
   const movieData = await getActorData(selectedActor);
-  return idkwhocares.movieArr.push(movieData);
+  compareMovies(movieData);
+  return actorsMoviesArr.push(...movieData); // NOTE THIS IS THE PROBLEM PUSHS NEW ARRAY EVERY TIME
 }
 
-function compareMovies({
-  firstActorSelected,
-  secondActorSelected,
-  thirdActorSelected,
-  movieArr,
-} = idkwhocares) {
-  if (firstActorSelected && secondActorSelected && thirdActorSelected) {
-    results.innerHTML = `<div></div>`;
+function compareMovies(movieArr) {
+  // console.log(movieArr);
+  let array1 = ['a', 'b', 'c', 'd', 'e'];
+  const array2 = ['b', 'd', 'f'];
 
-    /** STUB Try implementing a solution that uses regex to
-     * check for duplicate strings on the title propery of
-     * the movie object and push that element to a new array
-     * https://stackoverflow.com/questions/43101589/check-if-any-duplicate-words-exist-in-a-string-using-regex/43101695
-     * https://medium.com/@caymanbruce/finding-duplicate-characters-in-a-string-in-javascript-94e2cb23ab5e
-     * https://stackoverflow.com/questions/28685513/javascript-regex-to-match-comma-delimited-duplicate-strings
-     */
+  array1 = array1.filter(function(item) {
+    return !array2.includes(item);
+  });
 
-    /**
-      TODO reset movieArr[i] to the new actors films on change
-      NOTE Maybe we can give each dropdown an uniqueID and then
-      use that to reset the specific array that was changed
-    */
-    let finalArray = [];
-    if (finalArray !== []) {
-      finalArray = [];
-    }
-    for (let i = 0; i <= movieArr.length; i++) {
-      if (movieArr[i + 1]) {
-        const currentArray = movieArr[i];
-        const nextArray = movieArr[i + 1];
-        currentArray.forEach(e1 =>
-          nextArray.forEach(e2 => {
-            if (e1.title === e2.title) {
-              finalArray.push(e1);
-            }
-          })
-        );
+  // console.log('tempArr', tempArr);
+  console.log('array1', array1); // [ 'a', 'c', 'e' ]
+  console.log('tempArr', array2);
+}
+
+function compareMovies(movieArr) {
+  results.innerHTML = `<div></div>`;
+  console.log(idk);
+  array1 = array1.filter(val => !array2.includes(val));
+      var x = ['IdA', 'idB', 'IdC', 'IdD', 'IdE'];
+  var y = ['idB', 'IdE', 'IdF'];
+
+  var z = x.filter(function(val) {
+    return y.indexOf(val) != -1;
+  });
+  console.log(z);
+  const finalArray = movieArr.map((e1, i) => {
+    console.log(e1);
+    [e1[i + 1]].map(e2 => {
+      if (e1.title === e2.title) {
+        return e1;
       }
+    });
+  });
+  console.log(finalArray);
+  renderMatchedMovies(finalArray);
+
+  const finalArray = [];
+  for (let i = 0; i <= movieArr.length; i++) {
+    if (!movieArr[i + 1]) {
+      const currentArray = movieArr[i];
+      const nextArray = movieArr[i + 1];
+      currentArray.forEach(e1 =>
+        nextArray.forEach(e2 => {
+          if (e1.title === e2.title) {
+            finalArray.push(e1);
+          }
+        })
+      );
+      console.log(finalArray);
+      renderMatchedMovies(finalArray);
+    } else {
+      renderMatchedMovies(movieArr);
     }
-    console.log(finalArray);
-    renderMatchedMovies(finalArray);
   }
 }
 
-firstActor.addEventListener('change', async () => {
-  addMovies(firstActor.value);
-  idkwhocares.firstActorSelected = true;
-  compareMovies(idkwhocares);
+createInput.addEventListener('click', () => {
+  const newInput = document.createElement('select');
+  newInput.classList.add('actor-input');
+  newInput.innerHTML = `
+    <option>Please Select an Actor</option>
+    <option value="9030">Thandie Newton</option>
+  `;
+  inputs.appendChild(newInput);
 });
 
-secondActor.addEventListener('change', async () => {
-  addMovies(secondActor.value);
-  idkwhocares.secondActorSelected = true;
-  compareMovies(idkwhocares);
-});
-
-thirdActor.addEventListener('change', async () => {
-  addMovies(thirdActor.value);
-  idkwhocares.thirdActorSelected = true;
-  compareMovies(idkwhocares);
+actorInput.forEach(el => {
+  el.addEventListener('change', async () => {
+    if (el.value !== 'Please Select an Actor') {
+      addMovies(el.value);
+      idk[el.value] = await getActorData(el.value);
+    }
+    compareMovies(actorsMoviesArr);
+  });
 });
